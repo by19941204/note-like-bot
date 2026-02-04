@@ -3,7 +3,7 @@ name: Visit note.com
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/3 * * * *'
+    - cron: '*/5 * * * *'
 
 jobs:
   check-date:
@@ -21,269 +21,218 @@ jobs:
             echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
-  # 館長: 4个独立Job (不同IP + 不同设备)
-  visit-1a:
+  # 館長: 20个独立设备
+  visit-kancho:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     steps:
       - run: |
           npm init -y && npm install playwright && npx playwright install chromium
+          
+          DEVICES='[
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0","w":1440,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":390,"h":844,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":412,"h":915,"m":true},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":1024,"h":1366,"m":false},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Firefox/123.0","w":1366,"h":768,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15","w":1680,"h":1050,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":360,"h":780,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/122.0.0.0","w":1536,"h":864,"m":false},
+            {"ua":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":375,"h":812,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 Chrome/121.0.0.0 Mobile","w":384,"h":854,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 Chrome/121.0.0.0","w":2560,"h":1440,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/537.36 Chrome/121.0.0.0","w":1280,"h":800,"m":false},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":820,"h":1180,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":393,"h":851,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Firefox/122.0","w":1600,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 Safari/605.1.15","w":1512,"h":982,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; OPPO A78) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile","w":360,"h":800,"m":true},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":430,"h":932,"m":true}
+          ]'
+          
+          IDX=$(( (${{ matrix.device }} - 1) % 20 ))
+          
           node -e "
           const {chromium}=require('playwright');
+          const devices=$DEVICES;
+          const d=devices[$IDX];
           (async()=>{
             const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-              locale:'ja-JP',
-              viewport:{width:1920,height:1080}
-            });
+            const ctx=await b.newContext({userAgent:d.ua,locale:'ja-JP',viewport:{width:d.w,height:d.h},isMobile:d.m});
             const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle',timeout:30000});
+            await p.waitForTimeout(2000+Math.random()*2000);
+            await p.evaluate(()=>window.scrollTo(0,document.body.scrollHeight*Math.random()));
             await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: Windows Chrome');
-          })();
+            console.log('館長: Device ${{ matrix.device }}');
+          })().catch(e=>console.log('Error:',e.message));
           "
 
-  visit-1b:
+  # カフェ: 20个独立设备
+  visit-cafe:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     steps:
       - run: |
           npm init -y && npm install playwright && npx playwright install chromium
+          
+          DEVICES='[
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0","w":1440,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":390,"h":844,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":412,"h":915,"m":true},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":1024,"h":1366,"m":false},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Firefox/123.0","w":1366,"h":768,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15","w":1680,"h":1050,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":360,"h":780,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/122.0.0.0","w":1536,"h":864,"m":false},
+            {"ua":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":375,"h":812,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 Chrome/121.0.0.0 Mobile","w":384,"h":854,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 Chrome/121.0.0.0","w":2560,"h":1440,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/537.36 Chrome/121.0.0.0","w":1280,"h":800,"m":false},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":820,"h":1180,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":393,"h":851,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Firefox/122.0","w":1600,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 Safari/605.1.15","w":1512,"h":982,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; OPPO A78) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile","w":360,"h":800,"m":true},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":430,"h":932,"m":true}
+          ]'
+          
+          IDX=$(( (${{ matrix.device }} - 1) % 20 ))
+          
           node -e "
           const {chromium}=require('playwright');
+          const devices=$DEVICES;
+          const d=devices[$IDX];
           (async()=>{
             const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-              locale:'ja-JP',
-              viewport:{width:1440,height:900}
-            });
+            const ctx=await b.newContext({userAgent:d.ua,locale:'ja-JP',viewport:{width:d.w,height:d.h},isMobile:d.m});
             const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle',timeout:30000});
+            await p.waitForTimeout(2000+Math.random()*2000);
+            await p.evaluate(()=>window.scrollTo(0,document.body.scrollHeight*Math.random()));
             await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: Mac Chrome');
-          })();
+            console.log('カフェ: Device ${{ matrix.device }}');
+          })().catch(e=>console.log('Error:',e.message));
           "
 
-  visit-1c:
+  # 冬休み: 20个独立设备
+  visit-fuyu:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     steps:
       - run: |
           npm init -y && npm install playwright && npx playwright install chromium
+          
+          DEVICES='[
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0","w":1440,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":390,"h":844,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":412,"h":915,"m":true},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":1024,"h":1366,"m":false},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Firefox/123.0","w":1366,"h":768,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15","w":1680,"h":1050,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":360,"h":780,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/122.0.0.0","w":1536,"h":864,"m":false},
+            {"ua":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":375,"h":812,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 Chrome/121.0.0.0 Mobile","w":384,"h":854,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 Chrome/121.0.0.0","w":2560,"h":1440,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/537.36 Chrome/121.0.0.0","w":1280,"h":800,"m":false},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":820,"h":1180,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":393,"h":851,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Firefox/122.0","w":1600,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 Safari/605.1.15","w":1512,"h":982,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; OPPO A78) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile","w":360,"h":800,"m":true},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":430,"h":932,"m":true}
+          ]'
+          
+          IDX=$(( (${{ matrix.device }} - 1) % 20 ))
+          
           node -e "
           const {chromium}=require('playwright');
+          const devices=$DEVICES;
+          const d=devices[$IDX];
           (async()=>{
             const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-              locale:'ja-JP',
-              viewport:{width:390,height:844},
-              isMobile:true
-            });
+            const ctx=await b.newContext({userAgent:d.ua,locale:'ja-JP',viewport:{width:d.w,height:d.h},isMobile:d.m});
             const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,300));
+            await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle',timeout:30000});
+            await p.waitForTimeout(2000+Math.random()*2000);
+            await p.evaluate(()=>window.scrollTo(0,document.body.scrollHeight*Math.random()));
             await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: iPhone Safari');
-          })();
+            console.log('冬休み: Device ${{ matrix.device }}');
+          })().catch(e=>console.log('Error:',e.message));
           "
 
-  visit-1d:
+  # 展示会: 20个独立设备
+  visit-tenji:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     steps:
       - run: |
           npm init -y && npm install playwright && npx playwright install chromium
+          
+          DEVICES='[
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0","w":1440,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":390,"h":844,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":412,"h":915,"m":true},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":1024,"h":1366,"m":false},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Firefox/123.0","w":1366,"h":768,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15","w":1680,"h":1050,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":360,"h":780,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/122.0.0.0","w":1536,"h":864,"m":false},
+            {"ua":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/122.0.0.0","w":1920,"h":1080,"m":false},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":375,"h":812,"m":true},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 Chrome/121.0.0.0 Mobile","w":384,"h":854,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 Chrome/121.0.0.0","w":2560,"h":1440,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/537.36 Chrome/121.0.0.0","w":1280,"h":800,"m":false},
+            {"ua":"Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":820,"h":1180,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile","w":393,"h":851,"m":true},
+            {"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Firefox/122.0","w":1600,"h":900,"m":false},
+            {"ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 Safari/605.1.15","w":1512,"h":982,"m":false},
+            {"ua":"Mozilla/5.0 (Linux; Android 13; OPPO A78) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile","w":360,"h":800,"m":true},
+            {"ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1","w":430,"h":932,"m":true}
+          ]'
+          
+          IDX=$(( (${{ matrix.device }} - 1) % 20 ))
+          
           node -e "
           const {chromium}=require('playwright');
+          const devices=$DEVICES;
+          const d=devices[$IDX];
           (async()=>{
             const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
-              locale:'ja-JP',
-              viewport:{width:412,height:915},
-              isMobile:true
-            });
+            const ctx=await b.newContext({userAgent:d.ua,locale:'ja-JP',viewport:{width:d.w,height:d.h},isMobile:d.m});
             const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,300));
+            await p.goto('https://note.com/funeshiru/n/n81d639277d5e',{waitUntil:'networkidle',timeout:30000});
+            await p.waitForTimeout(2000+Math.random()*2000);
+            await p.evaluate(()=>window.scrollTo(0,document.body.scrollHeight*Math.random()));
             await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: Android Chrome');
-          })();
-          "
-
-  # カフェ: 3个独立Job
-  visit-2a:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          npm init -y && npm install playwright && npx playwright install chromium
-          node -e "
-          const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
-              locale:'ja-JP',
-              viewport:{width:1366,height:768}
-            });
-            const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,500));
-            await p.waitForTimeout(1000);
-            await b.close();
-            console.log('カフェ: Windows Firefox');
-          })();
-          "
-
-  visit-2b:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          npm init -y && npm install playwright && npx playwright install chromium
-          node -e "
-          const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
-              locale:'ja-JP',
-              viewport:{width:1680,height:1050}
-            });
-            const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,500));
-            await p.waitForTimeout(1000);
-            await b.close();
-            console.log('カフェ: Mac Safari');
-          })();
-          "
-
-  visit-2c:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          npm init -y && npm install playwright && npx playwright install chromium
-          node -e "
-          const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-              locale:'ja-JP',
-              viewport:{width:1024,height:1366}
-            });
-            const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,400));
-            await p.waitForTimeout(1000);
-            await b.close();
-            console.log('カフェ: iPad Safari');
-          })();
-          "
-
-  # 冬休み: 2个独立Job
-  visit-3a:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          npm init -y && npm install playwright && npx playwright install chromium
-          node -e "
-          const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0',
-              locale:'ja-JP',
-              viewport:{width:1536,height:864}
-            });
-            const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,500));
-            await p.waitForTimeout(1000);
-            await b.close();
-            console.log('冬休み: Windows Edge');
-          })();
-          "
-
-  visit-3b:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          npm init -y && npm install playwright && npx playwright install chromium
-          node -e "
-          const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
-              locale:'ja-JP',
-              viewport:{width:360,height:780},
-              isMobile:true
-            });
-            const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,300));
-            await p.waitForTimeout(1000);
-            await b.close();
-            console.log('冬休み: Samsung Galaxy');
-          })();
-          "
-
-  # 展示会: 1个独立Job (最少)
-  visit-4a:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          npm init -y && npm install playwright && npx playwright install chromium
-          node -e "
-          const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch();
-            const ctx=await b.newContext({
-              userAgent:'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-              locale:'ja-JP',
-              viewport:{width:1920,height:1080}
-            });
-            const p=await ctx.newPage();
-            await p.goto('https://note.com/funeshiru/n/n81d639277d5e',{waitUntil:'networkidle'});
-            await p.waitForTimeout(3000);
-            await p.evaluate(()=>window.scrollTo(0,500));
-            await p.waitForTimeout(1000);
-            await b.close();
-            console.log('展示会: Linux Chrome');
-          })();
+            console.log('展示会: Device ${{ matrix.device }}');
+          })().catch(e=>console.log('Error:',e.message));
           "
