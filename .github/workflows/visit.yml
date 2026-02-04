@@ -2,58 +2,70 @@ name: Visit note.com
 
 on:
   workflow_dispatch:
-    inputs:
-      times:
-        description: '每篇文章访问次数'
-        default: '15'
   schedule:
-    - cron: '*/3 * * * *'  # 每3分钟运行
+    - cron: '*/5 * * * *'
 
 jobs:
-  visit-all:
+  # 文章1: 访问 10-20次
+  visit-article1:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        note_key:
-          - n939384d205b5   # 冬休み
-          - n708d5812b976   # カフェメニュー
-          - n81d639277d5e   # ふねができるまで展
-          - nc9282c02f880   # 館長インタビュー
     steps:
-      - name: Visit ${{ matrix.note_key }}
+      - name: Visit n939384d205b5
         run: |
-          NOTE_KEY="${{ matrix.note_key }}"
-          URL="https://note.com/funeshiru/n/${NOTE_KEY}"
-          TIMES=${{ github.event.inputs.times || '15' }}
-          
-          echo "=== 访问: $NOTE_KEY ==="
-          echo "次数: $TIMES"
-          
-          UAS=(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Mobile Safari/604.1"
-            "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36"
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
-          )
-          
-          LANGS=("ja" "en-US" "zh-CN" "ko-KR" "de-DE")
-          
-          SUCCESS=0
-          
+          URL="https://note.com/funeshiru/n/n939384d205b5"
+          TIMES=$((10 + RANDOM % 11))  # 10-20次
+          echo "访问 $TIMES 次"
           for i in $(seq 1 $TIMES); do
-            UA="${UAS[$((($i - 1) % 5))]}"
-            LANG="${LANGS[$((($i - 1) % 5))]}"
-            
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
-              -H "User-Agent: $UA" \
-              -H "Accept-Language: $LANG")
-            
-            if [ "$STATUS" = "200" ]; then
-              SUCCESS=$((SUCCESS + 1))
-            fi
-            
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
+              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
             sleep $((1 + RANDOM % 2))
           done
-          
-          echo "成功: $SUCCESS / $TIMES"
+          echo "Done: $TIMES visits"
+
+  # 文章2: 访问 15-25次（较多）
+  visit-article2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visit n708d5812b976
+        run: |
+          URL="https://note.com/funeshiru/n/n708d5812b976"
+          TIMES=$((15 + RANDOM % 11))  # 15-25次
+          echo "访问 $TIMES 次"
+          for i in $(seq 1 $TIMES); do
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
+              -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+            sleep $((1 + RANDOM % 2))
+          done
+          echo "Done: $TIMES visits"
+
+  # 文章3: 访问 8-15次（较少）
+  visit-article3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visit n81d639277d5e
+        run: |
+          URL="https://note.com/funeshiru/n/n81d639277d5e"
+          TIMES=$((8 + RANDOM % 8))  # 8-15次
+          echo "访问 $TIMES 次"
+          for i in $(seq 1 $TIMES); do
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
+              -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15"
+            sleep $((1 + RANDOM % 2))
+          done
+          echo "Done: $TIMES visits"
+
+  # 文章4: 访问 12-22次
+  visit-article4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visit nc9282c02f880
+        run: |
+          URL="https://note.com/funeshiru/n/nc9282c02f880"
+          TIMES=$((12 + RANDOM % 11))  # 12-22次
+          echo "访问 $TIMES 次"
+          for i in $(seq 1 $TIMES); do
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
+              -H "User-Agent: Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36"
+            sleep $((1 + RANDOM % 2))
+          done
+          echo "Done: $TIMES visits"

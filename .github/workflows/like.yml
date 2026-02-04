@@ -2,54 +2,79 @@ name: Like note.com
 
 on:
   workflow_dispatch:
-    inputs:
-      article:
-        description: '文章编号 (1-4)'
-        default: 'all'
   schedule:
-    - cron: '*/20 * * * *'  # 每20分钟运行
+    - cron: '*/30 * * * *'
 
 jobs:
-  like-all:
+  # 文章1: 每次都点赞
+  like-article1:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        note_key:
-          - n939384d205b5   # 冬休み
-          - n708d5812b976   # カフェメニュー
-          - n81d639277d5e   # ふねができるまで展
-          - nc9282c02f880   # 館長インタビュー
     steps:
-      - name: Like ${{ matrix.note_key }}
+      - name: Like n939384d205b5
         run: |
-          NOTE_KEY="${{ matrix.note_key }}"
+          NOTE_KEY="n939384d205b5"
           NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
           LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
-          NOTE_API="https://note.com/api/v3/notes/${NOTE_KEY}"
           
-          echo "=== 点赞: $NOTE_KEY ==="
-          
-          # 获取初始点赞数
-          INITIAL=$(curl -s "$NOTE_API" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
-          echo "初始点赞: $INITIAL"
-          
-          # 获取 session cookie
-          curl -s -c /tmp/cookies.txt "$NOTE_URL" \
-            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" > /dev/null
-          
-          # 发送点赞
-          RESULT=$(curl -s -X POST "$LIKE_API" \
-            -b /tmp/cookies.txt \
+          curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
+          curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
             -H "Content-Type: application/json" \
-            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-            -H "Origin: https://note.com" \
-            -H "Referer: $NOTE_URL" \
-            -H "X-Requested-With: XMLHttpRequest" \
-            -d '{}')
-          
-          echo "结果: $RESULT"
-          
-          # 获取最终点赞数
-          sleep 2
-          FINAL=$(curl -s "$NOTE_API" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
-          echo "最终点赞: $FINAL (+$((FINAL - INITIAL)))"
+            -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
+          echo "Done: $NOTE_KEY"
+
+  # 文章2: 50%概率点赞（更多增长）
+  like-article2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Like n708d5812b976 (random)
+        run: |
+          if [ $((RANDOM % 2)) -eq 0 ]; then
+            NOTE_KEY="n708d5812b976"
+            NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
+            LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
+            curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
+            echo "Done: $NOTE_KEY"
+          else
+            echo "Skipped: n708d5812b976"
+          fi
+
+  # 文章3: 30%概率点赞
+  like-article3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Like n81d639277d5e (random)
+        run: |
+          if [ $((RANDOM % 10)) -lt 3 ]; then
+            NOTE_KEY="n81d639277d5e"
+            NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
+            LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
+            curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
+            echo "Done: $NOTE_KEY"
+          else
+            echo "Skipped: n81d639277d5e"
+          fi
+
+  # 文章4: 20%概率点赞（已经很多了）
+  like-article4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Like nc9282c02f880 (random)
+        run: |
+          if [ $((RANDOM % 10)) -lt 2 ]; then
+            NOTE_KEY="nc9282c02f880"
+            NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
+            LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
+            curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
+            echo "Done: $NOTE_KEY"
+          else
+            echo "Skipped: nc9282c02f880"
+          fi
