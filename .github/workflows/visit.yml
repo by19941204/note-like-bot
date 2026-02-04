@@ -6,7 +6,6 @@ on:
     - cron: '*/5 * * * *'
 
 jobs:
-  # 今天24:00后停止
   check-date:
     runs-on: ubuntu-latest
     outputs:
@@ -20,121 +19,83 @@ jobs:
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
-            echo "⏰ 已到期"
           fi
 
-  # 冬休み: 14-21次 (目标约1900)
-  visit-article1:
+  visit-all:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Visit n939384d205b5
+      - name: Install Playwright
         run: |
-          URL="https://note.com/funeshiru/n/n939384d205b5"
-          TIMES=$((14 + RANDOM % 8))
+          npm init -y
+          npm install playwright
+          npx playwright install chromium
           
-          UAS=(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0"
-          )
-          
-          for i in $(seq 1 $TIMES); do
-            UA="${UAS[$((RANDOM % 8))]}"
-            curl -s -o /dev/null "$URL?_t=$RANDOM$RANDOM" -H "User-Agent: $UA"
-            sleep $((1 + RANDOM % 2))
-          done
-          echo "冬休み: $TIMES visits"
+      - name: Visit pages with real browser
+        run: |
+          cat > visit.js << 'EOF'
+          const { chromium } = require('playwright');
 
-  # カフェ: 19-27次 (目标约2500)
-  visit-article2:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Visit n708d5812b976
-        run: |
-          URL="https://note.com/funeshiru/n/n708d5812b976"
-          TIMES=$((19 + RANDOM % 9))
-          
-          UAS=(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0"
-          )
-          
-          for i in $(seq 1 $TIMES); do
-            UA="${UAS[$((RANDOM % 8))]}"
-            curl -s -o /dev/null "$URL?_t=$RANDOM$RANDOM" -H "User-Agent: $UA"
-            sleep $((1 + RANDOM % 2))
-          done
-          echo "カフェ: $TIMES visits"
+          const articles = [
+            { key: 'nc9282c02f880', name: '館長', times: 37 + Math.floor(Math.random() * 13) },
+            { key: 'n708d5812b976', name: 'カフェ', times: 19 + Math.floor(Math.random() * 9) },
+            { key: 'n939384d205b5', name: '冬休み', times: 14 + Math.floor(Math.random() * 8) },
+            { key: 'n81d639277d5e', name: '展示会', times: 9 + Math.floor(Math.random() * 8) },
+          ];
 
-  # 展示会: 9-16次 (目标约1400 - 最少)
-  visit-article3:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Visit n81d639277d5e
-        run: |
-          URL="https://note.com/funeshiru/n/n81d639277d5e"
-          TIMES=$((9 + RANDOM % 8))
-          
-          UAS=(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0"
-          )
-          
-          for i in $(seq 1 $TIMES); do
-            UA="${UAS[$((RANDOM % 8))]}"
-            curl -s -o /dev/null "$URL?_t=$RANDOM$RANDOM" -H "User-Agent: $UA"
-            sleep $((1 + RANDOM % 2))
-          done
-          echo "展示会: $TIMES visits"
+          const userAgents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+          ];
 
-  # 館長: 37-49次 (目标约4700 - 最多)
-  visit-article4:
-    needs: check-date
-    if: needs.check-date.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Visit nc9282c02f880
-        run: |
-          URL="https://note.com/funeshiru/n/nc9282c02f880"
-          TIMES=$((37 + RANDOM % 13))
+          async function visitArticle(article) {
+            const browser = await chromium.launch({ headless: true });
+            const ua = userAgents[Math.floor(Math.random() * userAgents.length)];
+            const context = await browser.newContext({
+              userAgent: ua,
+              locale: 'ja-JP',
+              viewport: { width: 1280, height: 720 }
+            });
+            
+            let success = 0;
+            for (let i = 0; i < article.times; i++) {
+              try {
+                const page = await context.newPage();
+                const url = `https://note.com/funeshiru/n/${article.key}`;
+                await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+                // 等待页面完全加载，让JS统计生效
+                await page.waitForTimeout(2000 + Math.random() * 2000);
+                // 模拟滚动
+                await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
+                await page.waitForTimeout(1000);
+                await page.close();
+                success++;
+              } catch (e) {
+                console.log(`  [${i+1}] Error: ${e.message.substring(0, 50)}`);
+              }
+              
+              // 随机延迟
+              await new Promise(r => setTimeout(r, 1000 + Math.random() * 2000));
+            }
+            
+            await browser.close();
+            console.log(`${article.name}: ${success}/${article.times} visits`);
+            return success;
+          }
+
+          async function main() {
+            console.log('Starting browser visits...');
+            let total = 0;
+            for (const article of articles) {
+              total += await visitArticle(article);
+            }
+            console.log(`Total: ${total} visits`);
+          }
+
+          main().catch(console.error);
+          EOF
           
-          UAS=(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/122.0.0.0"
-            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15"
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 Safari/605.1.15"
-            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/122.0.0.0"
-          )
-          
-          for i in $(seq 1 $TIMES); do
-            UA="${UAS[$((RANDOM % 8))]}"
-            curl -s -o /dev/null "$URL?_t=$RANDOM$RANDOM" -H "User-Agent: $UA"
-            sleep $((1 + RANDOM % 2))
-          done
-          echo "館長: $TIMES visits"
+          node visit.js
