@@ -23,7 +23,7 @@ jobs:
             echo "⏰ 已到期"
           fi
 
-  # 冬休み: 目标120-140
+  # 冬休み: 37%概率
   like-article1:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -31,18 +31,25 @@ jobs:
     steps:
       - name: Like n939384d205b5
         run: |
-          # 37%概率执行
           if [ $((RANDOM % 100)) -lt 37 ]; then
             NOTE_KEY="n939384d205b5"
-            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            curl -s -c /tmp/c.txt -b /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" -H "Accept-Language: ja-JP,ja;q=0.9" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
-              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" \
+              -H "Referer: https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" \
+              -H "Accept: application/json" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -d '{}'
             echo "Done: 冬休み"
           else
             echo "Skipped"
           fi
 
-  # カフェ: 目标140-170
+  # カフェ: 63%概率
   like-article2:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -50,18 +57,25 @@ jobs:
     steps:
       - name: Like n708d5812b976
         run: |
-          # 63%概率执行
           if [ $((RANDOM % 100)) -lt 63 ]; then
             NOTE_KEY="n708d5812b976"
-            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            curl -s -c /tmp/c.txt -b /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" -H "Accept-Language: ja-JP,ja;q=0.9" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
-              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" \
+              -H "Referer: https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" \
+              -H "Accept: application/json" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -d '{}'
             echo "Done: カフェ"
           else
             echo "Skipped"
           fi
 
-  # 展示会: 目标105-120 (最少)
+  # 展示会: 17%概率 (最少)
   like-article3:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -69,18 +83,25 @@ jobs:
     steps:
       - name: Like n81d639277d5e
         run: |
-          # 17%概率执行 (最少)
           if [ $((RANDOM % 100)) -lt 17 ]; then
             NOTE_KEY="n81d639277d5e"
-            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            UA="Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            curl -s -c /tmp/c.txt -b /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" -H "Accept-Language: ja-JP,ja;q=0.9" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
-              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" \
+              -H "Referer: https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" \
+              -H "Accept: application/json" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -d '{}'
             echo "Done: 展示会"
           else
             echo "Skipped"
           fi
 
-  # 館長: 目标220+ (最多)
+  # 館長: 97%概率 (最多)
   like-article4:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -88,12 +109,19 @@ jobs:
     steps:
       - name: Like nc9282c02f880
         run: |
-          # 97%概率执行 (最多)
           if [ $((RANDOM % 100)) -lt 97 ]; then
             NOTE_KEY="nc9282c02f880"
-            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            UA="Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+            curl -s -c /tmp/c.txt -b /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" -H "Accept-Language: ja-JP,ja;q=0.9" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
-              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+              -H "Content-Type: application/json" \
+              -H "Origin: https://note.com" \
+              -H "Referer: https://note.com/funeshiru/n/${NOTE_KEY}" \
+              -H "User-Agent: $UA" \
+              -H "Accept: application/json" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -d '{}'
             echo "Done: 館長"
           else
             echo "Skipped"
