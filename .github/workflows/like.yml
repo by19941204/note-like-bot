@@ -6,8 +6,27 @@ on:
     - cron: '*/30 * * * *'
 
 jobs:
+  # 检查是否过期 (2月8日后停止)
+  check-date:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          NOW=$(date +%s)
+          END=$(($(date -d "2026-02-09 00:00:00" +%s)))
+          if [ $NOW -lt $END ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "⏰ 已到期，停止运行"
+          fi
+
   # 文章1: 每次都点赞
   like-article1:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Like n939384d205b5
@@ -24,6 +43,8 @@ jobs:
 
   # 文章2: 50%概率点赞（更多增长）
   like-article2:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Like n708d5812b976 (random)
@@ -43,6 +64,8 @@ jobs:
 
   # 文章3: 30%概率点赞
   like-article3:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Like n81d639277d5e (random)
@@ -62,6 +85,8 @@ jobs:
 
   # 文章4: 20%概率点赞（已经很多了）
   like-article4:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Like nc9282c02f880 (random)

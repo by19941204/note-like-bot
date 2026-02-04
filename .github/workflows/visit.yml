@@ -6,8 +6,27 @@ on:
     - cron: '*/5 * * * *'
 
 jobs:
+  # 检查是否过期 (2月8日后停止)
+  check-date:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          NOW=$(date +%s)
+          END=$(($(date -d "2026-02-09 00:00:00" +%s)))
+          if [ $NOW -lt $END ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "⏰ 已到期，停止运行"
+          fi
+
   # 文章1: 访问 10-20次
   visit-article1:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Visit n939384d205b5
@@ -24,6 +43,8 @@ jobs:
 
   # 文章2: 访问 15-25次（较多）
   visit-article2:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Visit n708d5812b976
@@ -40,6 +61,8 @@ jobs:
 
   # 文章3: 访问 8-15次（较少）
   visit-article3:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Visit n81d639277d5e
@@ -56,6 +79,8 @@ jobs:
 
   # 文章4: 访问 12-22次
   visit-article4:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Visit nc9282c02f880
