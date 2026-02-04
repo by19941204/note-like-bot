@@ -14,15 +14,14 @@ jobs:
       - id: check
         run: |
           NOW=$(TZ=Asia/Tokyo date +%s)
-          END=$(TZ=Asia/Tokyo date -d "2026-02-05 00:00:00" +%s)
+          END=$(TZ=Asia/Tokyo date -d "2026-02-07 00:00:00" +%s)
           if [ $NOW -lt $END ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
-  # 每个job是独立的服务器 = 不同IP
-  # 館長: 最多 (4个独立job)
+  # 館長: 4个独立Job (不同IP + 不同设备)
   visit-1a:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -34,11 +33,18 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+              locale:'ja-JP',
+              viewport:{width:1920,height:1080}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: 1 visit');
+            console.log('館長: Windows Chrome');
           })();
           "
 
@@ -53,11 +59,18 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+              locale:'ja-JP',
+              viewport:{width:1440,height:900}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: 1 visit');
+            console.log('館長: Mac Chrome');
           })();
           "
 
@@ -72,11 +85,19 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+              locale:'ja-JP',
+              viewport:{width:390,height:844},
+              isMobile:true
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,300));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: 1 visit');
+            console.log('館長: iPhone Safari');
           })();
           "
 
@@ -91,15 +112,23 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+              locale:'ja-JP',
+              viewport:{width:412,height:915},
+              isMobile:true
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,300));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('館長: 1 visit');
+            console.log('館長: Android Chrome');
           })();
           "
 
-  # カフェ: 3个独立job
+  # カフェ: 3个独立Job
   visit-2a:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -111,11 +140,18 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
+              locale:'ja-JP',
+              viewport:{width:1366,height:768}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('カフェ: 1 visit');
+            console.log('カフェ: Windows Firefox');
           })();
           "
 
@@ -130,11 +166,18 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
+              locale:'ja-JP',
+              viewport:{width:1680,height:1050}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('カフェ: 1 visit');
+            console.log('カフェ: Mac Safari');
           })();
           "
 
@@ -149,15 +192,22 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+              locale:'ja-JP',
+              viewport:{width:1024,height:1366}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,400));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('カフェ: 1 visit');
+            console.log('カフェ: iPad Safari');
           })();
           "
 
-  # 冬休み: 2个独立job
+  # 冬休み: 2个独立Job
   visit-3a:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -169,11 +219,18 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0',
+              locale:'ja-JP',
+              viewport:{width:1536,height:864}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('冬休み: 1 visit');
+            console.log('冬休み: Windows Edge');
           })();
           "
 
@@ -188,15 +245,23 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+              locale:'ja-JP',
+              viewport:{width:360,height:780},
+              isMobile:true
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,300));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('冬休み: 1 visit');
+            console.log('冬休み: Samsung Galaxy');
           })();
           "
 
-  # 展示会: 1个独立job (最少)
+  # 展示会: 1个独立Job (最少)
   visit-4a:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -208,10 +273,17 @@ jobs:
           const {chromium}=require('playwright');
           (async()=>{
             const b=await chromium.launch();
-            const p=await b.newPage();
+            const ctx=await b.newContext({
+              userAgent:'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+              locale:'ja-JP',
+              viewport:{width:1920,height:1080}
+            });
+            const p=await ctx.newPage();
             await p.goto('https://note.com/funeshiru/n/n81d639277d5e',{waitUntil:'networkidle'});
             await p.waitForTimeout(3000);
+            await p.evaluate(()=>window.scrollTo(0,500));
+            await p.waitForTimeout(1000);
             await b.close();
-            console.log('展示会: 1 visit');
+            console.log('展示会: Linux Chrome');
           })();
           "
