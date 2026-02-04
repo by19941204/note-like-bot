@@ -52,7 +52,7 @@ jobs:
           done
           echo "冬休み: $TIMES visits"
 
-  # カフェ: 26-32次 (目标约3100 - 最多)
+  # カフェ: 22-28次 (目标约2700)
   visit-article2:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -61,7 +61,7 @@ jobs:
       - name: Visit n708d5812b976
         run: |
           URL="https://note.com/funeshiru/n/n708d5812b976"
-          TIMES=$((26 + RANDOM % 7))
+          TIMES=$((22 + RANDOM % 7))
           
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
@@ -110,7 +110,7 @@ jobs:
           done
           echo "展示会: $TIMES visits"
 
-  # 館長: 22-28次 (目标约2700)
+  # 館長: 28-35次 (目标约3400 - 最多)
   visit-article4:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -119,7 +119,7 @@ jobs:
       - name: Visit nc9282c02f880
         run: |
           URL="https://note.com/funeshiru/n/nc9282c02f880"
-          TIMES=$((22 + RANDOM % 7))
+          TIMES=$((28 + RANDOM % 8))
           
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
