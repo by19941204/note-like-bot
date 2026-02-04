@@ -32,12 +32,23 @@ jobs:
       - name: Visit n939384d205b5
         run: |
           URL="https://note.com/funeshiru/n/n939384d205b5"
-          TIMES=$((10 + RANDOM % 11))  # 10-20次
-          echo "访问 $TIMES 次"
+          TIMES=$((10 + RANDOM % 11))
+          
+          UAS=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+          )
+          
           for i in $(seq 1 $TIMES); do
-            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
-              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            sleep $((1 + RANDOM % 2))
+            UA="${UAS[$((RANDOM % ${#UAS[@]}))]}"
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" -H "User-Agent: $UA"
+            sleep $((1 + RANDOM % 3))
           done
           echo "Done: $TIMES visits"
 
@@ -50,12 +61,23 @@ jobs:
       - name: Visit n708d5812b976
         run: |
           URL="https://note.com/funeshiru/n/n708d5812b976"
-          TIMES=$((15 + RANDOM % 11))  # 15-25次
-          echo "访问 $TIMES 次"
+          TIMES=$((15 + RANDOM % 11))
+          
+          UAS=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+          )
+          
           for i in $(seq 1 $TIMES); do
-            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
-              -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-            sleep $((1 + RANDOM % 2))
+            UA="${UAS[$((RANDOM % ${#UAS[@]}))]}"
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" -H "User-Agent: $UA"
+            sleep $((1 + RANDOM % 3))
           done
           echo "Done: $TIMES visits"
 
@@ -68,12 +90,23 @@ jobs:
       - name: Visit n81d639277d5e
         run: |
           URL="https://note.com/funeshiru/n/n81d639277d5e"
-          TIMES=$((8 + RANDOM % 8))  # 8-15次
-          echo "访问 $TIMES 次"
+          TIMES=$((8 + RANDOM % 8))
+          
+          UAS=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+          )
+          
           for i in $(seq 1 $TIMES); do
-            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
-              -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15"
-            sleep $((1 + RANDOM % 2))
+            UA="${UAS[$((RANDOM % ${#UAS[@]}))]}"
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" -H "User-Agent: $UA"
+            sleep $((1 + RANDOM % 3))
           done
           echo "Done: $TIMES visits"
 
@@ -86,11 +119,22 @@ jobs:
       - name: Visit nc9282c02f880
         run: |
           URL="https://note.com/funeshiru/n/nc9282c02f880"
-          TIMES=$((12 + RANDOM % 11))  # 12-22次
-          echo "访问 $TIMES 次"
+          TIMES=$((12 + RANDOM % 11))
+          
+          UAS=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+            "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+            "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
+          )
+          
           for i in $(seq 1 $TIMES); do
-            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
-              -H "User-Agent: Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36"
-            sleep $((1 + RANDOM % 2))
+            UA="${UAS[$((RANDOM % ${#UAS[@]}))]}"
+            curl -s -o /dev/null "$URL?_t=$(date +%s%N)&_r=$RANDOM" -H "User-Agent: $UA"
+            sleep $((1 + RANDOM % 3))
           done
           echo "Done: $TIMES visits"
