@@ -31,8 +31,8 @@ jobs:
     steps:
       - name: Like n939384d205b5
         run: |
-          # 4%概率执行
-          if [ $((RANDOM % 100)) -lt 4 ]; then
+          # 35%概率执行
+          if [ $((RANDOM % 100)) -lt 35 ]; then
             NOTE_KEY="n939384d205b5"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
@@ -50,8 +50,8 @@ jobs:
     steps:
       - name: Like n708d5812b976
         run: |
-          # 6%概率执行
-          if [ $((RANDOM % 100)) -lt 6 ]; then
+          # 60%概率执行
+          if [ $((RANDOM % 100)) -lt 60 ]; then
             NOTE_KEY="n708d5812b976"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
@@ -69,8 +69,8 @@ jobs:
     steps:
       - name: Like n81d639277d5e
         run: |
-          # 2%概率执行 (最少)
-          if [ $((RANDOM % 100)) -lt 2 ]; then
+          # 15%概率执行 (最少)
+          if [ $((RANDOM % 100)) -lt 15 ]; then
             NOTE_KEY="n81d639277d5e"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
@@ -88,8 +88,8 @@ jobs:
     steps:
       - name: Like nc9282c02f880
         run: |
-          # 10%概率执行 (最多)
-          if [ $((RANDOM % 100)) -lt 10 ]; then
+          # 100%概率执行 (最多)
+          if [ true ]; then
             NOTE_KEY="nc9282c02f880"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
