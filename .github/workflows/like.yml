@@ -23,7 +23,7 @@ jobs:
             echo "⏰ 已到期"
           fi
 
-  # 冬休み: 目标130-160
+  # 冬休み: 目标120-140
   like-article1:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -31,8 +31,8 @@ jobs:
     steps:
       - name: Like n939384d205b5
         run: |
-          # 50%概率执行
-          if [ $((RANDOM % 10)) -lt 5 ]; then
+          # 35%概率执行
+          if [ $((RANDOM % 100)) -lt 35 ]; then
             NOTE_KEY="n939384d205b5"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
@@ -42,7 +42,7 @@ jobs:
             echo "Skipped"
           fi
 
-  # カフェ: 目标150-180
+  # カフェ: 目标140-170
   like-article2:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -50,8 +50,8 @@ jobs:
     steps:
       - name: Like n708d5812b976
         run: |
-          # 70%概率执行
-          if [ $((RANDOM % 10)) -lt 7 ]; then
+          # 60%概率执行
+          if [ $((RANDOM % 100)) -lt 60 ]; then
             NOTE_KEY="n708d5812b976"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
@@ -61,7 +61,7 @@ jobs:
             echo "Skipped"
           fi
 
-  # 展示会: 目标110-130 (最少)
+  # 展示会: 目标105-120 (最少)
   like-article3:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -69,8 +69,8 @@ jobs:
     steps:
       - name: Like n81d639277d5e
         run: |
-          # 30%概率执行 (最少)
-          if [ $((RANDOM % 10)) -lt 3 ]; then
+          # 15%概率执行 (最少)
+          if [ $((RANDOM % 100)) -lt 15 ]; then
             NOTE_KEY="n81d639277d5e"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
@@ -80,7 +80,7 @@ jobs:
             echo "Skipped"
           fi
 
-  # 館長: 目标200+ (最多)
+  # 館長: 目标220+ (最多)
   like-article4:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -88,8 +88,8 @@ jobs:
     steps:
       - name: Like nc9282c02f880
         run: |
-          # 90%概率执行 (最多)
-          if [ $((RANDOM % 10)) -lt 9 ]; then
+          # 100%概率执行 (最多)
+          if [ true ]; then
             NOTE_KEY="nc9282c02f880"
             curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
             curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
