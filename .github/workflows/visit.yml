@@ -23,7 +23,7 @@ jobs:
             echo "⏰ 已到期"
           fi
 
-  # 冬休み: 15-20次 (目标约1900)
+  # 冬休み: 14-21次 (目标约1900)
   visit-article1:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -32,7 +32,7 @@ jobs:
       - name: Visit n939384d205b5
         run: |
           URL="https://note.com/funeshiru/n/n939384d205b5"
-          TIMES=$((15 + RANDOM % 6))
+          TIMES=$((14 + RANDOM % 8))
           
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
@@ -52,7 +52,7 @@ jobs:
           done
           echo "冬休み: $TIMES visits"
 
-  # カフェ: 20-26次 (目标约2500)
+  # カフェ: 19-27次 (目标约2500)
   visit-article2:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -61,7 +61,7 @@ jobs:
       - name: Visit n708d5812b976
         run: |
           URL="https://note.com/funeshiru/n/n708d5812b976"
-          TIMES=$((20 + RANDOM % 7))
+          TIMES=$((19 + RANDOM % 9))
           
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
@@ -81,7 +81,7 @@ jobs:
           done
           echo "カフェ: $TIMES visits"
 
-  # 展示会: 10-15次 (目标约1400 - 最少)
+  # 展示会: 9-16次 (目标约1400 - 最少)
   visit-article3:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -90,7 +90,7 @@ jobs:
       - name: Visit n81d639277d5e
         run: |
           URL="https://note.com/funeshiru/n/n81d639277d5e"
-          TIMES=$((10 + RANDOM % 6))
+          TIMES=$((9 + RANDOM % 8))
           
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
@@ -110,7 +110,7 @@ jobs:
           done
           echo "展示会: $TIMES visits"
 
-  # 館長: 38-48次 (目标约4700 - 最多)
+  # 館長: 37-49次 (目标约4700 - 最多)
   visit-article4:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -119,7 +119,7 @@ jobs:
       - name: Visit nc9282c02f880
         run: |
           URL="https://note.com/funeshiru/n/nc9282c02f880"
-          TIMES=$((38 + RANDOM % 11))
+          TIMES=$((37 + RANDOM % 13))
           
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0"
