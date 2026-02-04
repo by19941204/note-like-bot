@@ -4,26 +4,31 @@ on:
   workflow_dispatch:
     inputs:
       times:
-        description: '访问次数'
-        default: '10'
+        description: '每篇文章访问次数'
+        default: '15'
   schedule:
-    - cron: '*/5 * * * *'  # 每5分钟运行
+    - cron: '*/3 * * * *'  # 每3分钟运行
 
 jobs:
-  visit:
+  visit-all:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        note_key:
+          - n939384d205b5   # 冬休み
+          - n708d5812b976   # カフェメニュー
+          - n81d639277d5e   # ふねができるまで展
+          - nc9282c02f880   # 館長インタビュー
     steps:
-      - name: Visit page multiple times
+      - name: Visit ${{ matrix.note_key }}
         run: |
-          URL="https://note.com/funeshiru/n/nc9282c02f880"
-          TIMES=${{ github.event.inputs.times || '10' }}
+          NOTE_KEY="${{ matrix.note_key }}"
+          URL="https://note.com/funeshiru/n/${NOTE_KEY}"
+          TIMES=${{ github.event.inputs.times || '15' }}
           
-          echo "=== 从 GitHub 服务器访问 note.com ==="
-          echo "目标: $URL"
+          echo "=== 访问: $NOTE_KEY ==="
           echo "次数: $TIMES"
-          echo ""
           
-          # 不同的 User-Agent
           UAS=(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
@@ -32,30 +37,23 @@ jobs:
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
           )
           
+          LANGS=("ja" "en-US" "zh-CN" "ko-KR" "de-DE")
+          
           SUCCESS=0
-          FAIL=0
           
           for i in $(seq 1 $TIMES); do
-            UA_INDEX=$((($i - 1) % 5))
-            UA="${UAS[$UA_INDEX]}"
+            UA="${UAS[$((($i - 1) % 5))]}"
+            LANG="${LANGS[$((($i - 1) % 5))]}"
             
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL?_t=$(date +%s)&_r=$RANDOM" \
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL?_t=$(date +%s%N)&_r=$RANDOM" \
               -H "User-Agent: $UA" \
-              -H "Accept-Language: ja,en;q=0.9")
+              -H "Accept-Language: $LANG")
             
             if [ "$STATUS" = "200" ]; then
               SUCCESS=$((SUCCESS + 1))
-              echo "✓ #$i 状态:$STATUS"
-            else
-              FAIL=$((FAIL + 1))
-              echo "✗ #$i 状态:$STATUS"
             fi
             
-            # 随机延迟 1-3 秒
-            sleep $((1 + RANDOM % 3))
+            sleep $((1 + RANDOM % 2))
           done
           
-          echo ""
-          echo "=== 结果 ==="
-          echo "成功: $SUCCESS"
-          echo "失败: $FAIL"
+          echo "成功: $SUCCESS / $TIMES"

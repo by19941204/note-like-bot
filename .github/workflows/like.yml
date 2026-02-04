@@ -2,32 +2,48 @@ name: Like note.com
 
 on:
   workflow_dispatch:
+    inputs:
+      article:
+        description: '文章编号 (1-4)'
+        default: 'all'
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/20 * * * *'  # 每20分钟运行
 
 jobs:
-  like:
+  like-all:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        note_key:
+          - n939384d205b5   # 冬休み
+          - n708d5812b976   # カフェメニュー
+          - n81d639277d5e   # ふねができるまで展
+          - nc9282c02f880   # 館長インタビュー
     steps:
-      - name: Send like request
+      - name: Like ${{ matrix.note_key }}
         run: |
-          echo "=== 点赞 note.com ==="
+          NOTE_KEY="${{ matrix.note_key }}"
+          NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
+          LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
+          NOTE_API="https://note.com/api/v3/notes/${NOTE_KEY}"
+          
+          echo "=== 点赞: $NOTE_KEY ==="
           
           # 获取初始点赞数
-          INITIAL=$(curl -s "https://note.com/api/v3/notes/nc9282c02f880" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
+          INITIAL=$(curl -s "$NOTE_API" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
           echo "初始点赞: $INITIAL"
           
-          # 使用 cookie jar 获取 session
-          curl -s -c /tmp/cookies.txt "https://note.com/funeshiru/n/nc9282c02f880" \
+          # 获取 session cookie
+          curl -s -c /tmp/cookies.txt "$NOTE_URL" \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" > /dev/null
           
-          # 发送点赞（使用 cookie jar）
-          RESULT=$(curl -s -X POST "https://note.com/api/v3/notes/nc9282c02f880/likes" \
+          # 发送点赞
+          RESULT=$(curl -s -X POST "$LIKE_API" \
             -b /tmp/cookies.txt \
             -H "Content-Type: application/json" \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
             -H "Origin: https://note.com" \
-            -H "Referer: https://note.com/funeshiru/n/nc9282c02f880" \
+            -H "Referer: $NOTE_URL" \
             -H "X-Requested-With: XMLHttpRequest" \
             -d '{}')
           
@@ -35,6 +51,5 @@ jobs:
           
           # 获取最终点赞数
           sleep 2
-          FINAL=$(curl -s "https://note.com/api/v3/notes/nc9282c02f880" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
-          echo "最终点赞: $FINAL"
-          echo "增加: +$((FINAL - INITIAL))"
+          FINAL=$(curl -s "$NOTE_API" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
+          echo "最终点赞: $FINAL (+$((FINAL - INITIAL)))"
