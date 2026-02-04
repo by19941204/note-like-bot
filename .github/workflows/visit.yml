@@ -3,7 +3,7 @@ name: Visit note.com
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/3 * * * *'
 
 jobs:
   check-date:
@@ -21,57 +21,197 @@ jobs:
             echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
-  visit-all:
+  # 每个job是独立的服务器 = 不同IP
+  # 館長: 最多 (4个独立job)
+  visit-1a:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Install Playwright
-        run: |
-          npm init -y
-          npm install playwright
-          npx playwright install chromium
-          
-      - name: Visit pages
-        run: |
-          cat > visit.js << 'SCRIPT'
-          const { chromium } = require('playwright');
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('館長: 1 visit');
+          })();
+          "
 
-          const articles = [
-            { key: 'nc9282c02f880', name: '館長', times: 8 },
-            { key: 'n708d5812b976', name: 'カフェ', times: 5 },
-            { key: 'n939384d205b5', name: '冬休み', times: 4 },
-            { key: 'n81d639277d5e', name: '展示会', times: 3 },
-          ];
+  visit-1b:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('館長: 1 visit');
+          })();
+          "
 
-          async function main() {
-            const browser = await chromium.launch({ headless: true });
-            const context = await browser.newContext({
-              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0',
-              locale: 'ja-JP'
-            });
-            
-            let total = 0;
-            for (const article of articles) {
-              for (let i = 0; i < article.times; i++) {
-                try {
-                  const page = await context.newPage();
-                  await page.goto(`https://note.com/funeshiru/n/${article.key}`, { waitUntil: 'domcontentloaded', timeout: 15000 });
-                  await page.waitForTimeout(2000);
-                  await page.close();
-                  total++;
-                } catch (e) {
-                  console.log(`Error: ${e.message.substring(0, 30)}`);
-                }
-              }
-              console.log(`${article.name}: ${article.times} visits`);
-            }
-            
-            await browser.close();
-            console.log(`Total: ${total} visits`);
-          }
+  visit-1c:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('館長: 1 visit');
+          })();
+          "
 
-          main().catch(console.error);
-          SCRIPT
-          
-          node visit.js
+  visit-1d:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/nc9282c02f880',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('館長: 1 visit');
+          })();
+          "
+
+  # カフェ: 3个独立job
+  visit-2a:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('カフェ: 1 visit');
+          })();
+          "
+
+  visit-2b:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('カフェ: 1 visit');
+          })();
+          "
+
+  visit-2c:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/n708d5812b976',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('カフェ: 1 visit');
+          })();
+          "
+
+  # 冬休み: 2个独立job
+  visit-3a:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('冬休み: 1 visit');
+          })();
+          "
+
+  visit-3b:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/n939384d205b5',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('冬休み: 1 visit');
+          })();
+          "
+
+  # 展示会: 1个独立job (最少)
+  visit-4a:
+    needs: check-date
+    if: needs.check-date.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          npm init -y && npm install playwright && npx playwright install chromium
+          node -e "
+          const {chromium}=require('playwright');
+          (async()=>{
+            const b=await chromium.launch();
+            const p=await b.newPage();
+            await p.goto('https://note.com/funeshiru/n/n81d639277d5e',{waitUntil:'networkidle'});
+            await p.waitForTimeout(3000);
+            await b.close();
+            console.log('展示会: 1 visit');
+          })();
+          "
