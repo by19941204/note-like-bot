@@ -3,10 +3,10 @@ name: Like note.com
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/20 * * * *'
 
 jobs:
-  # 检查是否过期 (2月8日后停止)
+  # 今天24:00后停止
   check-date:
     runs-on: ubuntu-latest
     outputs:
@@ -14,16 +14,16 @@ jobs:
     steps:
       - id: check
         run: |
-          NOW=$(date +%s)
-          END=$(($(date -d "2026-02-09 00:00:00" +%s)))
+          NOW=$(TZ=Asia/Tokyo date +%s)
+          END=$(TZ=Asia/Tokyo date -d "2026-02-05 00:00:00" +%s)
           if [ $NOW -lt $END ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
-            echo "⏰ 已到期，停止运行"
+            echo "⏰ 已到期"
           fi
 
-  # 文章1: 每次都点赞
+  # 冬休み: 目标120-150 (当前104, 需要+16~46)
   like-article1:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -31,75 +31,70 @@ jobs:
     steps:
       - name: Like n939384d205b5
         run: |
-          NOTE_KEY="n939384d205b5"
-          NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
-          LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
-          
-          curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
-          curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
-            -H "Content-Type: application/json" \
-            -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
-          echo "Done: $NOTE_KEY"
+          # 70%概率执行
+          if [ $((RANDOM % 10)) -lt 7 ]; then
+            NOTE_KEY="n939384d205b5"
+            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
+              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+            echo "Done: 冬休み"
+          else
+            echo "Skipped"
+          fi
 
-  # 文章2: 50%概率点赞（更多增长）
+  # カフェ: 目标160-190 (当前104, 需要+56~86)
   like-article2:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Like n708d5812b976 (random)
+      - name: Like n708d5812b976
         run: |
-          if [ $((RANDOM % 2)) -eq 0 ]; then
+          # 90%概率执行 (需要更多)
+          if [ $((RANDOM % 10)) -lt 9 ]; then
             NOTE_KEY="n708d5812b976"
-            NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
-            LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
-            curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
-            curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
-              -H "Content-Type: application/json" \
-              -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
-            echo "Done: $NOTE_KEY"
+            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
+              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+            echo "Done: カフェ"
           else
-            echo "Skipped: n708d5812b976"
+            echo "Skipped"
           fi
 
-  # 文章3: 30%概率点赞
+  # 展示会: 目标130-160 (当前104, 需要+26~56)
   like-article3:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Like n81d639277d5e (random)
+      - name: Like n81d639277d5e
         run: |
-          if [ $((RANDOM % 10)) -lt 3 ]; then
+          # 50%概率执行
+          if [ $((RANDOM % 10)) -lt 5 ]; then
             NOTE_KEY="n81d639277d5e"
-            NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
-            LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
-            curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
-            curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
-              -H "Content-Type: application/json" \
-              -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
-            echo "Done: $NOTE_KEY"
+            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
+              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+            echo "Done: 展示会"
           else
-            echo "Skipped: n81d639277d5e"
+            echo "Skipped"
           fi
 
-  # 文章4: 20%概率点赞（已经很多了）
+  # 館長: 目标190-200 (当前186, 只需要+4~14)
   like-article4:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Like nc9282c02f880 (random)
+      - name: Like nc9282c02f880
         run: |
+          # 20%概率执行 (已经很多)
           if [ $((RANDOM % 10)) -lt 2 ]; then
             NOTE_KEY="nc9282c02f880"
-            NOTE_URL="https://note.com/funeshiru/n/${NOTE_KEY}"
-            LIKE_API="https://note.com/api/v3/notes/${NOTE_KEY}/likes"
-            curl -s -c /tmp/c.txt "$NOTE_URL" -H "User-Agent: Mozilla/5.0" > /dev/null
-            curl -s -X POST "$LIKE_API" -b /tmp/c.txt \
-              -H "Content-Type: application/json" \
-              -H "Origin: https://note.com" -H "Referer: $NOTE_URL" -d '{}'
-            echo "Done: $NOTE_KEY"
+            curl -s -c /tmp/c.txt "https://note.com/funeshiru/n/${NOTE_KEY}" -H "User-Agent: Mozilla/5.0" > /dev/null
+            curl -s -X POST "https://note.com/api/v3/notes/${NOTE_KEY}/likes" -b /tmp/c.txt \
+              -H "Content-Type: application/json" -H "Origin: https://note.com" -d '{}'
+            echo "Done: 館長"
           else
-            echo "Skipped: nc9282c02f880"
+            echo "Skipped"
           fi
