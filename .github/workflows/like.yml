@@ -1,9 +1,9 @@
 name: Like note.com
 
 on:
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *'  # 每30分钟运行一次
+    - cron: '*/30 * * * *'
 
 jobs:
   like:
@@ -17,16 +17,18 @@ jobs:
           INITIAL=$(curl -s "https://note.com/api/v3/notes/nc9282c02f880" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('like_count',0))")
           echo "初始点赞: $INITIAL"
           
-          # 访问页面获取cookie
-          COOKIE=$(curl -s -c - "https://note.com/funeshiru/n/nc9282c02f880" | grep _note_session | awk '{print $6"="$7}')
+          # 使用 cookie jar 获取 session
+          curl -s -c /tmp/cookies.txt "https://note.com/funeshiru/n/nc9282c02f880" \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" > /dev/null
           
-          # 发送点赞
+          # 发送点赞（使用 cookie jar）
           RESULT=$(curl -s -X POST "https://note.com/api/v3/notes/nc9282c02f880/likes" \
+            -b /tmp/cookies.txt \
             -H "Content-Type: application/json" \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
             -H "Origin: https://note.com" \
             -H "Referer: https://note.com/funeshiru/n/nc9282c02f880" \
-            -H "Cookie: $COOKIE" \
+            -H "X-Requested-With: XMLHttpRequest" \
             -d '{}')
           
           echo "结果: $RESULT"
