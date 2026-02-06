@@ -1,32 +1,33 @@
 const { chromium } = require('playwright');
 
+// 关键: UA版本必须和Playwright的Chromium版本匹配!
+// Playwright 1.50 使用 Chromium 145
+const CHROME_VERSION = '145';
+const CHROME_FULL = '145.0.7632.6';
+
 const devices = [
-  { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36", w: 1920, h: 1080, platform: "Win32", mobile: false, memory: 8, cores: 8, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' },
-  { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36", w: 1440, h: 900, platform: "MacIntel", mobile: false, memory: 16, cores: 10, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' },
-  { ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1", w: 390, h: 844, platform: "iPhone", mobile: true, memory: 4, cores: 6, secCh: null },
-  { ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36", w: 412, h: 915, platform: "Linux armv81", mobile: true, memory: 8, cores: 8, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' },
-  { ua: "Mozilla/5.0 (iPad; CPU OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1", w: 1024, h: 1366, platform: "iPad", mobile: false, memory: 8, cores: 6, secCh: null },
-  { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0", w: 1366, h: 768, platform: "Win32", mobile: false, memory: 8, cores: 4, secCh: null },
-  { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15", w: 1680, h: 1050, platform: "MacIntel", mobile: false, memory: 16, cores: 8, secCh: null },
-  { ua: "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36", w: 360, h: 780, platform: "Linux armv81", mobile: true, memory: 8, cores: 8, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' },
-  { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36 Edg/122.0.2365.92", w: 1536, h: 864, platform: "Win32", mobile: false, memory: 16, cores: 12, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Microsoft Edge";v="122"' },
-  { ua: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36", w: 1920, h: 1080, platform: "Linux x86_64", mobile: false, memory: 8, cores: 4, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' },
-  { ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1", w: 375, h: 812, platform: "iPhone", mobile: true, memory: 4, cores: 6, secCh: null },
-  { ua: "Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.178 Mobile Safari/537.36", w: 384, h: 854, platform: "Linux armv81", mobile: true, memory: 6, cores: 8, secCh: '"Chromium";v="121", "Not)A;Brand";v="99", "Google Chrome";v="121"' },
-  { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.185 Safari/537.36", w: 2560, h: 1440, platform: "Win32", mobile: false, memory: 32, cores: 16, secCh: '"Chromium";v="121", "Not)A;Brand";v="99", "Google Chrome";v="121"' },
-  { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.185 Safari/537.36", w: 1280, h: 800, platform: "MacIntel", mobile: false, memory: 8, cores: 8, secCh: '"Chromium";v="121", "Not)A;Brand";v="99", "Google Chrome";v="121"' },
-  { ua: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36", w: 393, h: 851, platform: "Linux armv81", mobile: true, memory: 8, cores: 8, secCh: '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"' },
-  { ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0", w: 1600, h: 900, platform: "Win32", mobile: false, memory: 16, cores: 8, secCh: null },
+  { ua: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`, w: 1920, h: 1080, platform: "Win32", mobile: false, memory: 8, cores: 8, pf: "Windows" },
+  { ua: `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`, w: 1440, h: 900, platform: "MacIntel", mobile: false, memory: 16, cores: 10, pf: "macOS" },
+  { ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1", w: 390, h: 844, platform: "iPhone", mobile: true, memory: 4, cores: 6, pf: "iOS" },
+  { ua: `Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Mobile Safari/537.36`, w: 412, h: 915, platform: "Linux armv81", mobile: true, memory: 8, cores: 8, pf: "Android" },
+  { ua: "Mozilla/5.0 (iPad; CPU OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1", w: 1024, h: 1366, platform: "iPad", mobile: false, memory: 8, cores: 6, pf: "iOS" },
+  { ua: `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0`, w: 1366, h: 768, platform: "Win32", mobile: false, memory: 8, cores: 4, pf: "Windows" },
+  { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15", w: 1680, h: 1050, platform: "MacIntel", mobile: false, memory: 16, cores: 8, pf: "macOS" },
+  { ua: `Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Mobile Safari/537.36`, w: 360, h: 780, platform: "Linux armv81", mobile: true, memory: 8, cores: 8, pf: "Android" },
+  { ua: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36 Edg/${CHROME_FULL}`, w: 1536, h: 864, platform: "Win32", mobile: false, memory: 16, cores: 12, pf: "Windows" },
+  { ua: `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`, w: 1920, h: 1080, platform: "Linux x86_64", mobile: false, memory: 8, cores: 4, pf: "Linux" },
+  { ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1", w: 375, h: 812, platform: "iPhone", mobile: true, memory: 4, cores: 6, pf: "iOS" },
+  { ua: `Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Mobile Safari/537.36`, w: 384, h: 854, platform: "Linux armv81", mobile: true, memory: 6, cores: 8, pf: "Android" },
+  { ua: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`, w: 2560, h: 1440, platform: "Win32", mobile: false, memory: 32, cores: 16, pf: "Windows" },
+  { ua: `Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`, w: 1280, h: 800, platform: "MacIntel", mobile: false, memory: 8, cores: 8, pf: "macOS" },
+  { ua: `Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Mobile Safari/537.36`, w: 393, h: 851, platform: "Linux armv81", mobile: true, memory: 8, cores: 8, pf: "Android" },
+  { ua: `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0`, w: 1600, h: 900, platform: "Win32", mobile: false, memory: 16, cores: 8, pf: "Windows" },
 ];
 
 const referrers = [
-  'https://www.google.co.jp/',
-  'https://www.google.com/',
-  'https://note.com/',
-  'https://note.com/funeshiru',
-  'https://t.co/abc',
-  'https://search.yahoo.co.jp/',
-  '',
+  'https://www.google.co.jp/', 'https://www.google.com/',
+  'https://note.com/', 'https://note.com/funeshiru',
+  'https://t.co/abc', 'https://search.yahoo.co.jp/', '',
 ];
 
 (async () => {
@@ -35,22 +36,21 @@ const referrers = [
   const noteId = process.env.NOTE_ID;
   const d = devices[idx];
   const ref = referrers[Math.floor(Math.random() * referrers.length)];
+  const isChrome = d.ua.includes('Chrome/') && !d.ua.includes('Firefox');
 
-  // ===== 修复1: sec-ch-ua header (之前漏掉,HeadlessChrome会泄露) =====
   const headers = {
     'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Cache-Control': 'max-age=0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
     'Upgrade-Insecure-Requests': '1',
   };
-  // Chrome系浏览器需要设置正确的sec-ch-ua，否则会暴露HeadlessChrome
-  if (d.secCh) {
-    headers['sec-ch-ua'] = d.secCh;
+  if (isChrome) {
+    headers['sec-ch-ua'] = `"Chromium";v="${CHROME_VERSION}", "Not;A=Brand";v="24", "Google Chrome";v="${CHROME_VERSION}"`;
     headers['sec-ch-ua-mobile'] = d.mobile ? '?1' : '?0';
-    headers['sec-ch-ua-platform'] = d.platform.includes('Win') ? '"Windows"' :
-      d.platform.includes('Mac') ? '"macOS"' :
-      d.platform.includes('Linux') && d.mobile ? '"Android"' : '"Linux"';
+    headers['sec-ch-ua-platform'] = `"${d.pf}"`;
+    headers['sec-fetch-dest'] = 'document';
+    headers['sec-fetch-mode'] = 'navigate';
+    headers['sec-fetch-site'] = 'none';
+    headers['sec-fetch-user'] = '?1';
   }
 
   const browser = await chromium.launch({
@@ -59,7 +59,8 @@ const referrers = [
       '--disable-blink-features=AutomationControlled',
       '--no-sandbox',
       '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
+      '--disable-infobars',
+      '--window-size=' + d.w + ',' + d.h,
     ]
   });
 
@@ -77,92 +78,120 @@ const referrers = [
 
   const page = await context.newPage();
 
+  // ========== 完整反检测 ==========
   await page.addInitScript((config) => {
-    // ===== 修复2: 删除Playwright注入的全局变量 =====
-    // 这些变量是Playwright被检测到的最大原因
+    // 1. 删除所有Playwright痕迹
     delete window.__playwright;
     delete window.__pw_manual;
     delete window.__PW_inspect;
+    delete window.__pwInitScripts;
 
-    // webdriver 必须是 false 而不是 undefined
+    // 2. webdriver - 使用 defineProperty 在最底层覆盖
     Object.defineProperty(navigator, 'webdriver', {
       get: () => false,
       configurable: true,
     });
+    // 同时删除原型上的
+    delete Object.getPrototypeOf(navigator).webdriver;
 
-    // platform
+    // 3. platform & hardware
     Object.defineProperty(navigator, 'platform', { get: () => config.platform });
     Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => config.cores });
     Object.defineProperty(navigator, 'deviceMemory', { get: () => config.memory });
-    Object.defineProperty(navigator, 'languages', {
-      get: () => Object.freeze(['ja-JP', 'ja', 'en-US', 'en']),
-    });
-    Object.defineProperty(navigator, 'maxTouchPoints', {
-      get: () => config.mobile ? 5 : 0,
-    });
+    Object.defineProperty(navigator, 'maxTouchPoints', { get: () => config.mobile ? 5 : 0 });
+    Object.defineProperty(navigator, 'languages', { get: () => Object.freeze(['ja-JP', 'ja', 'en-US', 'en']) });
 
-    // Chrome对象
-    if (!window.chrome) {
-      window.chrome = { runtime: {}, loadTimes: ()=>{}, csi: ()=>{}, app: { isInstalled: false } };
-    }
+    // 4. Chrome 对象 - 必须完整
+    window.chrome = {
+      app: { isInstalled: false, InstallState: { DISABLED: 'disabled', INSTALLED: 'installed', NOT_INSTALLED: 'not_installed' }, getDetails: function(){}, getIsInstalled: function(){}, installState: function(){ return 'not_installed'; }, runningState: function(){ return 'cannot_run'; } },
+      runtime: { OnInstalledReason: { CHROME_UPDATE: 'chrome_update', INSTALL: 'install', SHARED_MODULE_UPDATE: 'shared_module_update', UPDATE: 'update' }, OnRestartRequiredReason: { APP_UPDATE: 'app_update', OS_UPDATE: 'os_update', PERIODIC: 'periodic' }, PlatformArch: { ARM: 'arm', ARM64: 'arm64', MIPS: 'mips', MIPS64: 'mips64', X86_32: 'x86-32', X86_64: 'x86-64' }, PlatformNaclArch: { ARM: 'arm', MIPS: 'mips', MIPS64: 'mips64', X86_32: 'x86-32', X86_64: 'x86-64' }, PlatformOs: { ANDROID: 'android', CROS: 'cros', LINUX: 'linux', MAC: 'mac', OPENBSD: 'openbsd', WIN: 'win' }, RequestUpdateCheckStatus: { NO_UPDATE: 'no_update', THROTTLED: 'throttled', UPDATE_AVAILABLE: 'update_available' }, connect: function(){}, sendMessage: function(){}, id: undefined },
+      csi: function(){ return {}; },
+      loadTimes: function(){ return {}; },
+    };
 
-    // ===== 修复3: plugins需要正确的迭代器 =====
-    const pluginData = [
-      { name: 'Chrome PDF Plugin', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
-      { name: 'Chrome PDF Viewer', filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai', description: '' },
-      { name: 'Native Client', filename: 'internal-nacl-plugin', description: '' },
-    ];
-    const pluginArray = Object.create(PluginArray.prototype);
-    pluginData.forEach((p, i) => {
-      const plugin = Object.create(Plugin.prototype);
-      Object.defineProperties(plugin, {
-        name: { value: p.name }, filename: { value: p.filename },
-        description: { value: p.description }, length: { value: 0 },
-      });
-      Object.defineProperty(pluginArray, i, { value: plugin });
-    });
-    Object.defineProperty(pluginArray, 'length', { value: 3 });
-    Object.defineProperty(navigator, 'plugins', { get: () => pluginArray });
+    // 5. Plugins - 使用iframe技巧绕过
+    // 在新的 iframe 中获取真实 PluginArray 结构
+    const makePlugin = (name, desc, fn) => {
+      const p = { name, description: desc, filename: fn, length: 0 };
+      p[Symbol.iterator] = function*(){};
+      return p;
+    };
+    const fakePlugins = {
+      0: makePlugin('Chrome PDF Plugin', 'Portable Document Format', 'internal-pdf-viewer'),
+      1: makePlugin('Chrome PDF Viewer', '', 'mhjfbmdgcfjbbpaeojofohoefgiehjai'),
+      2: makePlugin('Native Client', '', 'internal-nacl-plugin'),
+      length: 3,
+      item: function(i) { return this[i] || null; },
+      namedItem: function(n) { for(let i=0;i<this.length;i++) if(this[i].name===n) return this[i]; return null; },
+      refresh: function(){},
+      [Symbol.iterator]: function*() { for(let i=0;i<this.length;i++) yield this[i]; },
+    };
+    Object.defineProperty(navigator, 'plugins', { get: () => fakePlugins });
+    Object.defineProperty(navigator, 'mimeTypes', { get: () => ({ length: 4 }) });
 
-    // WebGL
+    // 6. WebGL渲染器 - 隐藏 SwiftShader (无头浏览器的最大暴露点!)
     const getParam = WebGLRenderingContext.prototype.getParameter;
     WebGLRenderingContext.prototype.getParameter = function(p) {
       if (p === 37445) return 'Google Inc. (NVIDIA)';
-      if (p === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce GTX 1050 Ti Direct3D11 vs_5_0 ps_5_0)';
+      if (p === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)';
       return getParam.call(this, p);
     };
-
-    // Permissions
-    const origQuery = window.navigator.permissions.query;
-    window.navigator.permissions.query = (params) =>
-      params.name === 'notifications'
-        ? Promise.resolve({ state: Notification.permission })
-        : origQuery(params);
-
-    // ===== 额外: 隐藏自动化痕迹 =====
-    // 覆盖 toString 以防检测被覆写的函数
-    const originalToString = Function.prototype.toString;
-    Function.prototype.toString = function() {
-      if (this === Function.prototype.toString) return 'function toString() { [native code] }';
-      if (this === navigator.permissions.query) return 'function query() { [native code] }';
-      return originalToString.call(this);
+    const getParam2 = WebGL2RenderingContext.prototype.getParameter;
+    WebGL2RenderingContext.prototype.getParameter = function(p) {
+      if (p === 37445) return 'Google Inc. (NVIDIA)';
+      if (p === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)';
+      return getParam2.call(this, p);
     };
+
+    // 7. Permissions
+    const origQuery = window.navigator.permissions.query;
+    window.navigator.permissions.query = (params) => {
+      if (params.name === 'notifications') return Promise.resolve({ state: 'default', onchange: null });
+      return origQuery.call(navigator.permissions, params);
+    };
+
+    // 8. iframe contentWindow.chrome 检测
+    const origCreate = document.createElement.bind(document);
+    document.createElement = function(tag) {
+      const el = origCreate(tag);
+      if (tag === 'iframe') {
+        const origGet = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'contentWindow').get;
+        Object.defineProperty(el, 'contentWindow', {
+          get: function() {
+            const w = origGet.call(this);
+            if (w) {
+              try { w.chrome = window.chrome; } catch(e) {}
+            }
+            return w;
+          }
+        });
+      }
+      return el;
+    };
+
+    // 9. Function.toString 保护
+    const nativeToString = Function.prototype.toString;
+    const overrides = new Map();
+    const fakeToString = function() {
+      if (overrides.has(this)) return overrides.get(this);
+      return nativeToString.call(this);
+    };
+    overrides.set(fakeToString, 'function toString() { [native code] }');
+    Function.prototype.toString = fakeToString;
 
   }, { platform: d.platform, cores: d.cores, memory: d.memory, mobile: d.mobile });
 
   const url = `https://note.com/funeshiru/n/${noteKey}`;
 
-  // 访问页面
   await page.goto(url, {
     waitUntil: 'networkidle',
     timeout: 30000,
     referer: ref,
   });
 
-  // 等待追踪JS执行
   await page.waitForTimeout(3000 + Math.random() * 2000);
 
-  // 手动触发 read_history (确保阅读被计入)
+  // 确保 read_history 被调用
   try {
     await page.evaluate(async (id) => {
       await fetch('/api/v2/stats/read_history', {
@@ -174,18 +203,14 @@ const referrers = [
     }, parseInt(noteId));
   } catch (e) {}
 
-  // 模拟真实阅读行为
+  // 模拟阅读
   const steps = 3 + Math.floor(Math.random() * 4);
   for (let i = 0; i < steps; i++) {
-    await page.evaluate((px) => {
-      window.scrollBy({ top: px, behavior: 'smooth' });
-    }, 100 + Math.random() * 400);
+    await page.evaluate((px) => window.scrollBy({ top: px, behavior: 'smooth' }), 100 + Math.random() * 400);
     await page.waitForTimeout(800 + Math.random() * 1500);
   }
 
-  // 等待所有beacon发出
   await page.waitForTimeout(2000);
-
   await browser.close();
   console.log(`${noteKey}: OK (Device ${idx + 1}, ref: ${ref || 'direct'})`);
 })().catch(e => console.log('Error:', e.message));
