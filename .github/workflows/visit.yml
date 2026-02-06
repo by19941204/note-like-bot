@@ -21,7 +21,6 @@ jobs:
             echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
-  # 館長: 5个设备
   visit-kancho:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -30,88 +29,13 @@ jobs:
       matrix:
         device: [1,2,3,4,5]
     steps:
+      - uses: actions/checkout@v4
       - run: |
           npm init -y > /dev/null 2>&1
           npm install playwright > /dev/null 2>&1
           npx playwright install chromium > /dev/null 2>&1
-          
-          cat > visit.js << 'SCRIPT'
-          const { chromium } = require('playwright');
+          DEVICE_IDX=$(( ${{ matrix.device }} - 1 )) NOTE_KEY=nc9282c02f880 NOTE_ID=133143282 node visit.js
 
-          const devices = [
-            {ua:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36",w:1920,h:1080},
-            {ua:"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36",w:1440,h:900},
-            {ua:"Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",w:390,h:844},
-            {ua:"Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36",w:412,h:915},
-            {ua:"Mozilla/5.0 (iPad; CPU OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",w:1024,h:1366},
-          ];
-
-          const idx = parseInt(process.env.DEVICE_IDX);
-          const d = devices[idx];
-
-          (async () => {
-            const browser = await chromium.launch({
-              headless: true,
-              args: ['--disable-blink-features=AutomationControlled']
-            });
-            const context = await browser.newContext({
-              userAgent: d.ua,
-              locale: 'ja-JP',
-              timezoneId: 'Asia/Tokyo',
-              viewport: { width: d.w, height: d.h },
-              screen: { width: d.w, height: d.h },
-              hasTouch: d.w < 500,
-              colorScheme: 'light',
-            });
-
-            const page = await context.newPage();
-
-            // 隐藏webdriver标识
-            await page.addInitScript(() => {
-              Object.defineProperty(navigator, 'webdriver', { get: () => false });
-              Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-              Object.defineProperty(navigator, 'languages', { get: () => ['ja-JP', 'ja', 'en-US', 'en'] });
-              window.chrome = { runtime: {} };
-            });
-
-            // 设置referrer (从Google搜索或note.com首页来)
-            const referrers = [
-              'https://www.google.com/',
-              'https://www.google.co.jp/',
-              'https://note.com/',
-              'https://note.com/funeshiru',
-              'https://t.co/abc123',
-            ];
-            const ref = referrers[Math.floor(Math.random() * referrers.length)];
-
-            await page.goto('https://note.com/funeshiru/n/nc9282c02f880', {
-              waitUntil: 'networkidle',
-              timeout: 30000,
-              referer: ref
-            });
-
-            // 模拟真实阅读行为
-            await page.waitForTimeout(2000 + Math.random() * 3000);
-
-            // 慢慢滚动
-            for (let i = 0; i < 3; i++) {
-              await page.evaluate((scroll) => {
-                window.scrollBy(0, scroll);
-              }, 200 + Math.random() * 300);
-              await page.waitForTimeout(800 + Math.random() * 1200);
-            }
-
-            // 等待统计JS完成
-            await page.waitForTimeout(2000);
-
-            await browser.close();
-            console.log('館長: OK (Device ' + (idx+1) + ')');
-          })().catch(e => console.log('Error:', e.message));
-          SCRIPT
-          
-          DEVICE_IDX=$(( ${{ matrix.device }} - 1 )) node visit.js
-
-  # カフェ: 4个设备
   visit-cafe:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -120,60 +44,13 @@ jobs:
       matrix:
         device: [1,2,3,4]
     steps:
+      - uses: actions/checkout@v4
       - run: |
           npm init -y > /dev/null 2>&1
           npm install playwright > /dev/null 2>&1
           npx playwright install chromium > /dev/null 2>&1
-          
-          cat > visit.js << 'SCRIPT'
-          const { chromium } = require('playwright');
+          DEVICE_IDX=$(( ${{ matrix.device }} + 4 )) NOTE_KEY=n708d5812b976 NOTE_ID=138454453 node visit.js
 
-          const devices = [
-            {ua:"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",w:1366,h:768},
-            {ua:"Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",w:1680,h:1050},
-            {ua:"Mozilla/5.0 (Linux; Android 14; SM-S918B Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36",w:360,h:780},
-            {ua:"Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",w:375,h:812},
-          ];
-
-          const idx = parseInt(process.env.DEVICE_IDX);
-          const d = devices[idx];
-
-          (async () => {
-            const browser = await chromium.launch({
-              headless: true,
-              args: ['--disable-blink-features=AutomationControlled']
-            });
-            const context = await browser.newContext({
-              userAgent: d.ua, locale: 'ja-JP', timezoneId: 'Asia/Tokyo',
-              viewport: { width: d.w, height: d.h }, screen: { width: d.w, height: d.h },
-              hasTouch: d.w < 500, colorScheme: 'light',
-            });
-            const page = await context.newPage();
-            await page.addInitScript(() => {
-              Object.defineProperty(navigator, 'webdriver', { get: () => false });
-              Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-              Object.defineProperty(navigator, 'languages', { get: () => ['ja-JP', 'ja', 'en-US', 'en'] });
-              window.chrome = { runtime: {} };
-            });
-            const refs = ['https://www.google.co.jp/','https://note.com/','https://note.com/funeshiru','https://www.google.com/','https://t.co/xyz'];
-            await page.goto('https://note.com/funeshiru/n/n708d5812b976', {
-              waitUntil: 'networkidle', timeout: 30000,
-              referer: refs[Math.floor(Math.random() * refs.length)]
-            });
-            await page.waitForTimeout(2000 + Math.random() * 3000);
-            for (let i = 0; i < 3; i++) {
-              await page.evaluate((s) => window.scrollBy(0, s), 200 + Math.random() * 300);
-              await page.waitForTimeout(800 + Math.random() * 1200);
-            }
-            await page.waitForTimeout(2000);
-            await browser.close();
-            console.log('カフェ: OK (Device ' + (idx+1) + ')');
-          })().catch(e => console.log('Error:', e.message));
-          SCRIPT
-          
-          DEVICE_IDX=$(( ${{ matrix.device }} - 1 )) node visit.js
-
-  # 冬休み: 4个设备
   visit-fuyu:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -182,60 +59,13 @@ jobs:
       matrix:
         device: [1,2,3,4]
     steps:
+      - uses: actions/checkout@v4
       - run: |
           npm init -y > /dev/null 2>&1
           npm install playwright > /dev/null 2>&1
           npx playwright install chromium > /dev/null 2>&1
-          
-          cat > visit.js << 'SCRIPT'
-          const { chromium } = require('playwright');
+          DEVICE_IDX=$(( ${{ matrix.device }} + 8 )) NOTE_KEY=n939384d205b5 NOTE_ID=139795352 node visit.js
 
-          const devices = [
-            {ua:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36 Edg/122.0.2365.92",w:1536,h:864},
-            {ua:"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.112 Safari/537.36",w:1920,h:1080},
-            {ua:"Mozilla/5.0 (Linux; Android 13; SM-A546B Build/TP1A.220624.014) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.178 Mobile Safari/537.36",w:384,h:854},
-            {ua:"Mozilla/5.0 (iPad; CPU OS 16_7_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",w:820,h:1180},
-          ];
-
-          const idx = parseInt(process.env.DEVICE_IDX);
-          const d = devices[idx];
-
-          (async () => {
-            const browser = await chromium.launch({
-              headless: true,
-              args: ['--disable-blink-features=AutomationControlled']
-            });
-            const context = await browser.newContext({
-              userAgent: d.ua, locale: 'ja-JP', timezoneId: 'Asia/Tokyo',
-              viewport: { width: d.w, height: d.h }, screen: { width: d.w, height: d.h },
-              hasTouch: d.w < 500, colorScheme: 'light',
-            });
-            const page = await context.newPage();
-            await page.addInitScript(() => {
-              Object.defineProperty(navigator, 'webdriver', { get: () => false });
-              Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-              Object.defineProperty(navigator, 'languages', { get: () => ['ja-JP', 'ja', 'en-US', 'en'] });
-              window.chrome = { runtime: {} };
-            });
-            const refs = ['https://www.google.co.jp/','https://note.com/','https://note.com/funeshiru','https://www.google.com/'];
-            await page.goto('https://note.com/funeshiru/n/n939384d205b5', {
-              waitUntil: 'networkidle', timeout: 30000,
-              referer: refs[Math.floor(Math.random() * refs.length)]
-            });
-            await page.waitForTimeout(2000 + Math.random() * 3000);
-            for (let i = 0; i < 3; i++) {
-              await page.evaluate((s) => window.scrollBy(0, s), 200 + Math.random() * 300);
-              await page.waitForTimeout(800 + Math.random() * 1200);
-            }
-            await page.waitForTimeout(2000);
-            await browser.close();
-            console.log('冬休み: OK (Device ' + (idx+1) + ')');
-          })().catch(e => console.log('Error:', e.message));
-          SCRIPT
-          
-          DEVICE_IDX=$(( ${{ matrix.device }} - 1 )) node visit.js
-
-  # 展示会: 3个设备
   visit-tenji:
     needs: check-date
     if: needs.check-date.outputs.should_run == 'true'
@@ -244,54 +74,9 @@ jobs:
       matrix:
         device: [1,2,3]
     steps:
+      - uses: actions/checkout@v4
       - run: |
           npm init -y > /dev/null 2>&1
           npm install playwright > /dev/null 2>&1
           npx playwright install chromium > /dev/null 2>&1
-          
-          cat > visit.js << 'SCRIPT'
-          const { chromium } = require('playwright');
-
-          const devices = [
-            {ua:"Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.185 Safari/537.36",w:2560,h:1440},
-            {ua:"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.185 Safari/537.36",w:1280,h:800},
-            {ua:"Mozilla/5.0 (Linux; Android 14; Pixel 7 Build/UP1A.231105.003) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36",w:393,h:851},
-          ];
-
-          const idx = parseInt(process.env.DEVICE_IDX);
-          const d = devices[idx];
-
-          (async () => {
-            const browser = await chromium.launch({
-              headless: true,
-              args: ['--disable-blink-features=AutomationControlled']
-            });
-            const context = await browser.newContext({
-              userAgent: d.ua, locale: 'ja-JP', timezoneId: 'Asia/Tokyo',
-              viewport: { width: d.w, height: d.h }, screen: { width: d.w, height: d.h },
-              hasTouch: d.w < 500, colorScheme: 'light',
-            });
-            const page = await context.newPage();
-            await page.addInitScript(() => {
-              Object.defineProperty(navigator, 'webdriver', { get: () => false });
-              Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-              Object.defineProperty(navigator, 'languages', { get: () => ['ja-JP', 'ja', 'en-US', 'en'] });
-              window.chrome = { runtime: {} };
-            });
-            const refs = ['https://www.google.co.jp/','https://note.com/','https://note.com/funeshiru','https://www.google.com/'];
-            await page.goto('https://note.com/funeshiru/n/n81d639277d5e', {
-              waitUntil: 'networkidle', timeout: 30000,
-              referer: refs[Math.floor(Math.random() * refs.length)]
-            });
-            await page.waitForTimeout(2000 + Math.random() * 3000);
-            for (let i = 0; i < 3; i++) {
-              await page.evaluate((s) => window.scrollBy(0, s), 200 + Math.random() * 300);
-              await page.waitForTimeout(800 + Math.random() * 1200);
-            }
-            await page.waitForTimeout(2000);
-            await browser.close();
-            console.log('展示会: OK (Device ' + (idx+1) + ')');
-          })().catch(e => console.log('Error:', e.message));
-          SCRIPT
-          
-          DEVICE_IDX=$(( ${{ matrix.device }} - 1 )) node visit.js
+          DEVICE_IDX=$(( ${{ matrix.device }} + 12 )) NOTE_KEY=n81d639277d5e NOTE_ID=136630891 node visit.js
