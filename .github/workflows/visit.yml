@@ -14,7 +14,7 @@ jobs:
       - id: check
         run: |
           NOW=$(TZ=Asia/Tokyo date +%s)
-          END=$(TZ=Asia/Tokyo date -d "2026-02-08 00:00:00" +%s)
+          END=$(TZ=Asia/Tokyo date -d "2026-02-09 00:00:00" +%s)
           if [ $NOW -lt $END ]; then
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
