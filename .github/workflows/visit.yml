@@ -3,7 +3,7 @@ name: Visit note.com
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/3 * * * *'
+    - cron: '*/2 * * * *'
 
 jobs:
   check-date:
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        device: [1,2,3,4,5]
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -42,14 +42,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        device: [1,2,3,4]
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     steps:
       - uses: actions/checkout@v4
       - run: |
           npm init -y > /dev/null 2>&1
           npm install playwright > /dev/null 2>&1
           npx playwright install chromium > /dev/null 2>&1
-          DEVICE_IDX=$(( ${{ matrix.device }} + 4 )) NOTE_KEY=n708d5812b976 NOTE_ID=138454453 node visit.js
+          DEVICE_IDX=$(( ${{ matrix.device }} + 3 )) NOTE_KEY=n708d5812b976 NOTE_ID=138454453 node visit.js
 
   visit-fuyu:
     needs: check-date
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        device: [1,2,3,4]
+        device: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        device: [1,2,3]
+        device: [1,2,3,4,5,6,7,8,9,10]
     steps:
       - uses: actions/checkout@v4
       - run: |
